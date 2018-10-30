@@ -1,4 +1,4 @@
-package com.arun.rx.rxsensors;
+package com.arun.rx.sampleapp;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

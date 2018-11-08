@@ -15,7 +15,7 @@ Add it in your root build.gradle at the end of repositories
 
 Add the dependency
 
-    implementation 'com.github.arungiri10:RxSensors:1.0.0'
+    implementation 'com.github.arunseshagiri:RxSensors:1.0.0'
 
 # Usage
 

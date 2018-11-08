@@ -37,3 +37,4 @@ Unregister from Sensor events
     rxSensors
         .disconnect()
         .subscribe();
+

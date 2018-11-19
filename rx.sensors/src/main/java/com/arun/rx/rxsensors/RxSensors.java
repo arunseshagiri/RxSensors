@@ -27,20 +27,6 @@ public class RxSensors {
     private RxSensors() {
     }
 
-    public static RxSensors init(SensorManager sensorManager, int sensorType) {
-        return new Builder()
-            .sensorManager(sensorManager, sensorType)
-            .samplingPeriod(SENSOR_DELAY_NORMAL)
-            .build();
-    }
-
-    public static RxSensors init(SensorManager sensorManager, int sensorType, int samplingPeriod) {
-        return new Builder()
-            .sensorManager(sensorManager, sensorType)
-            .samplingPeriod(samplingPeriod)
-            .build();
-    }
-
     protected Observable<List<Sensor>> listOfAllSensors(int type) {
         List<Sensor> sensors = sensorManager.getSensorList(type);
         return Observable
@@ -120,22 +106,14 @@ public class RxSensors {
     }
 
     public static class Builder {
-        private SensorManager sensorManager;
-        private int           samplingPeriod;
-        private int           sensorType;
-
-        public Builder sensorManager(SensorManager sensorManager, int sensorType) {
-            this.sensorManager = sensorManager;
-            this.sensorType = sensorType;
-            return this;
-        }
+        private int samplingPeriod;
 
         public Builder samplingPeriod(int samplingPeriod) {
             this.samplingPeriod = samplingPeriod;
             return this;
         }
 
-        public RxSensors build() {
+        public RxSensors build(SensorManager sensorManager, int sensorType) {
             RxSensors rxSensor = new RxSensors();
             rxSensor.sensorManager = sensorManager;
             rxSensor.samplingPeriod = samplingPeriod;

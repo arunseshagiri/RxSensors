@@ -1,13 +1,15 @@
 package com.arun.rx.sampleapp;
 
 import android.content.Context;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.arun.rx.rxsensors.RxSensors;
+
+import static android.hardware.Sensor.TYPE_ACCELEROMETER;
+import static android.hardware.SensorManager.SENSOR_DELAY_NORMAL;
 
 public class SensorSampleAppActivity extends AppCompatActivity {
 
@@ -20,7 +22,9 @@ public class SensorSampleAppActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sensor_sample_app);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        rxSensors = RxSensors.init(sensorManager, Sensor.TYPE_ACCELEROMETER);
+        rxSensors = new RxSensors.Builder()
+            .samplingPeriod(SENSOR_DELAY_NORMAL)
+            .build(sensorManager, TYPE_ACCELEROMETER);
     }
 
     @Override

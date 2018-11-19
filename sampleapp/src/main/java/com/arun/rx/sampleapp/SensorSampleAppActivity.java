@@ -7,14 +7,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.arun.rx.rxsensors.RxSensors;
+import com.arun.rx.rxsensors.Type.AccelerometerUnCalibrated;
 
-import static android.hardware.Sensor.TYPE_ACCELEROMETER;
+import io.reactivex.disposables.Disposable;
+
 import static android.hardware.SensorManager.SENSOR_DELAY_NORMAL;
 
 public class SensorSampleAppActivity extends AppCompatActivity {
 
     private SensorManager sensorManager;
     private RxSensors     rxSensors;
+    private Disposable    disposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,18 +25,21 @@ public class SensorSampleAppActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sensor_sample_app);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        rxSensors = new RxSensors.Builder()
-            .samplingPeriod(SENSOR_DELAY_NORMAL)
-            .build(sensorManager, TYPE_ACCELEROMETER);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        rxSensors
+        rxSensors = new RxSensors.Builder()
+            .samplingPeriod(SENSOR_DELAY_NORMAL)
+            .build(sensorManager, AccelerometerUnCalibrated.instance());
+        disposable = rxSensors
             .listenForSensorEvents()
             .subscribe(
-                result -> Log.v("", result.dataX() + ""),
+                result -> Log.v(
+                    "",
+                    result.toString()
+                ),
                 error -> new Throwable(error)
             );
     }
@@ -41,8 +47,8 @@ public class SensorSampleAppActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        rxSensors
-            .disconnect()
-            .subscribe();
+        if (disposable != null) {
+            disposable.dispose();
+        }
     }
 }

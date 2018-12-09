@@ -19,13 +19,19 @@ Add the dependency
 
 # Usage
 
+Initialize Sensor Manager
+
+    SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
 Initialize RxSensor class
     
-    RxSensors rxSensors = RxSensors.init(sensorManager, Sensor.TYPE_ACCELEROMETER);
+    RxSensors rxSensors = new RxSensors.Builder()
+            .samplingPeriod(SENSOR_DELAY_NORMAL)
+            .build(sensorManager, Accelerometer.instance());
     
 Listen to sensor events
 
-    rxSensors
+    Disposable disposable = rxSensors
         .listenForSensorEvents()
             .subscribe(
                 sensorEvents ->  Use sensorEvents object to get events, accuracy, etc,
@@ -34,7 +40,5 @@ Listen to sensor events
             
 Unregister from Sensor events
 
-    rxSensors
-        .disconnect()
-        .subscribe();
+    disposable.dispose();
 

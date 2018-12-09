@@ -33,22 +33,18 @@ public class AccelerometerUnCalibrated implements SensorType {
         return this;
     }
 
-    @Override
     public float[] data() {
         return data;
     }
 
-    @Override
     public Sensor sensor() {
         return sensor;
     }
 
-    @Override
     public int accuracy() {
         return accuracy;
     }
 
-    @Override
     public long timestamp() {
         return timestamp;
     }

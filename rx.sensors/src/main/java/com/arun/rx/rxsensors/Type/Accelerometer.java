@@ -15,6 +15,10 @@ public class Accelerometer implements SensorType {
     private Accelerometer() {
     }
 
+    public static Accelerometer instance() {
+        return new Accelerometer();
+    }
+
     @Override
     public Accelerometer sensorEvents(Sensor sensor, float[] data, int accuracy, long timestamp) {
         this.sensor = sensor;
@@ -24,31 +28,23 @@ public class Accelerometer implements SensorType {
         return this;
     }
 
-    public static Accelerometer instance() {
-        return new Accelerometer();
-    }
-
     @Override
     public int sensorType() {
         return Sensor.TYPE_ACCELEROMETER;
     }
 
-    @Override
     public float[] data() {
         return data;
     }
 
-    @Override
     public Sensor sensor() {
         return sensor;
     }
 
-    @Override
     public int accuracy() {
         return accuracy;
     }
 
-    @Override
     public long timestamp() {
         return timestamp;
     }

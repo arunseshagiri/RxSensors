@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.arun.rx.rxsensors.RxSensors;
-import com.arun.rx.rxsensors.Type.AccelerometerUnCalibrated;
+import com.arun.rx.rxsensors.Type.Accelerometer;
 
 import io.reactivex.disposables.Disposable;
 
@@ -15,9 +15,9 @@ import static android.hardware.SensorManager.SENSOR_DELAY_NORMAL;
 
 public class SensorSampleAppActivity extends AppCompatActivity {
 
-    private SensorManager sensorManager;
-    private RxSensors     rxSensors;
-    private Disposable    disposable;
+    private SensorManager            sensorManager;
+    private RxSensors<Accelerometer> rxSensors;
+    private Disposable               disposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +32,8 @@ public class SensorSampleAppActivity extends AppCompatActivity {
         super.onResume();
         rxSensors = new RxSensors.Builder()
             .samplingPeriod(SENSOR_DELAY_NORMAL)
-            .build(sensorManager, AccelerometerUnCalibrated.instance());
+            .build(sensorManager, Accelerometer.instance());
+
         disposable = rxSensors
             .listenForSensorEvents()
             .subscribe(

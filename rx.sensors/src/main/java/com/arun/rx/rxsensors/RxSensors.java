@@ -12,17 +12,18 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.processors.PublishProcessor;
 
+import static android.hardware.SensorManager.SENSOR_DELAY_NORMAL;
 import static io.reactivex.Observable.fromPublisher;
 
 /**
  * Created by arunkumar on 30/10/18.
  */
-public class RxSensors {
-    private PublishProcessor<SensorType> mqttEventSubject;
-    private SensorManager                sensorManager;
-    private SensorEventListener          listener;
-    private int                          samplingPeriod;
-    private SensorType                   sensorType;
+public class RxSensors<T extends SensorType> {
+    private PublishProcessor<T> mqttEventSubject;
+    private SensorManager       sensorManager;
+    private SensorEventListener listener;
+    private int                 samplingPeriod = SENSOR_DELAY_NORMAL;
+    private T                   sensorType;
 
     private RxSensors() {
     }
@@ -52,7 +53,7 @@ public class RxSensors {
         return false;
     }
 
-    public Observable<SensorType> listenForSensorEvents() {
+    public Observable<T> listenForSensorEvents() {
         if (mqttEventSubject != null) {
             return fromPublisher(mqttEventSubject);
         }
@@ -66,8 +67,12 @@ public class RxSensors {
                 samplingPeriod
             );
         return fromPublisher(mqttEventSubject)
+            .filter(__ -> sensorManager != null)
             .doOnDispose(
                 () -> sensorManager.unregisterListener(listener)
+            )
+            .doOnDispose(
+                () -> mqttEventSubject = null
             );
     }
 
@@ -102,8 +107,8 @@ public class RxSensors {
             return this;
         }
 
-        public RxSensors build(SensorManager sensorManager, SensorType sensorType) {
-            RxSensors rxSensor = new RxSensors();
+        public <T extends SensorType> RxSensors<T> build(SensorManager sensorManager, T sensorType) {
+            RxSensors<T> rxSensor = new RxSensors();
             rxSensor.sensorManager = sensorManager;
             rxSensor.samplingPeriod = samplingPeriod;
             rxSensor.sensorType = sensorType;

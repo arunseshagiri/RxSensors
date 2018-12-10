@@ -25,7 +25,7 @@ Initialize Sensor Manager
 
 Initialize RxSensor class
     
-    RxSensors rxSensors = new RxSensors.Builder()
+    RxSensors<Accelerometer> rxSensors = new RxSensors.Builder()
             .samplingPeriod(SENSOR_DELAY_NORMAL)
             .build(sensorManager, Accelerometer.instance());
     

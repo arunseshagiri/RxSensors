@@ -9,7 +9,8 @@ import com.arun.rx.rxsensors.Type.SensorType;
 
 import java.util.List;
 
-import io.reactivex.Observable;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.processors.PublishProcessor;
 
 import static android.hardware.SensorManager.SENSOR_DELAY_NORMAL;
@@ -19,7 +20,7 @@ import static io.reactivex.Observable.fromPublisher;
  * Created by arunkumar on 30/10/18.
  */
 public class RxSensors<T extends SensorType> {
-    private PublishProcessor<T> mqttEventSubject;
+    private PublishProcessor<T> sensorEventSubject;
     private SensorManager       sensorManager;
     private SensorEventListener listener;
     private int                 samplingPeriod = SENSOR_DELAY_NORMAL;
@@ -28,37 +29,38 @@ public class RxSensors<T extends SensorType> {
     private RxSensors() {
     }
 
-    protected Observable<List<Sensor>> listOfAllSensors(int type) {
+    protected Flowable<List<Sensor>> listOfAllSensors(int type) {
         List<Sensor> sensors = sensorManager.getSensorList(type);
-        return Observable
+        return Flowable
             .just(sensors);
     }
 
-    protected Observable<List<Sensor>> listOfAvailableSensors(int type) {
+    protected Flowable<List<Sensor>> listOfAvailableSensors(int type) {
         List<Sensor> sensors = sensorManager.getSensorList(type);
-        return Observable
+        return Flowable
             .just(sensors)
             .flatMapIterable(sensorsList -> sensorsList)
             .filter(
                 sensor -> sensorManager.getDefaultSensor(sensor.getType()) != null
             )
             .toList()
-            .toObservable();
+            .toFlowable();
     }
 
     public boolean isConnected() {
-        if (mqttEventSubject != null) {
+        if (sensorEventSubject != null) {
             return true;
         }
         return false;
     }
 
-    public Observable<T> listenForSensorEvents() {
-        if (mqttEventSubject != null) {
-            return fromPublisher(mqttEventSubject);
+    public Flowable<T> listenForSensorEvents() {
+        if (sensorEventSubject != null) {
+            return fromPublisher(sensorEventSubject)
+                .toFlowable(BackpressureStrategy.LATEST);
         }
 
-        mqttEventSubject = PublishProcessor.create();
+        sensorEventSubject = PublishProcessor.create();
         listener = registerForSensorEvents();
         sensorManager
             .registerListener(
@@ -66,21 +68,22 @@ public class RxSensors<T extends SensorType> {
                 sensorManager.getDefaultSensor(sensorType.sensorType()),
                 samplingPeriod
             );
-        return fromPublisher(mqttEventSubject)
+        return fromPublisher(sensorEventSubject)
+            .toFlowable(BackpressureStrategy.LATEST)
             .filter(__ -> sensorManager != null)
-            .doOnDispose(
+            .doOnCancel(
                 () -> sensorManager.unregisterListener(listener)
             )
-            .doOnDispose(
-                () -> mqttEventSubject = null
+            .doOnCancel(
+                () -> sensorEventSubject = null
             );
     }
 
-    public SensorEventListener registerForSensorEvents() {
+    private SensorEventListener registerForSensorEvents() {
         return new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
-                mqttEventSubject
+                sensorEventSubject
                     .onNext(
                         sensorType
                             .sensorEvents(
